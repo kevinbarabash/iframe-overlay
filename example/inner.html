@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Canvas Test</title>
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../bower_components/jquery-simulate/jquery.simulate.js"></script>
+  <script src="../src/poster.js"></script>
+</head>
+<body><canvas id="canvas"></canvas></body>
+</html>
+<script>
+
+  CanvasRenderingContext2D.prototype.line = function (x1, y1, x2, y2) {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  };
+
+  function rand(max) {
+    return max * Math.random();
+  }
+
+  function irand(max) {
+    return max * Math.random() | 0;
+  }
+
+  function randomColor() {
+    var array = [0, 0, 0];
+    return "rgb(" + array.map(function () { return irand(255); }) + ")";
+  }
+
+  var canvas = document.getElementById("canvas");
+  var ctx = canvas.getContext("2d");
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  ctx.lineWidth = 10;
+  ctx.lineCap = "round";
+
+  var down = false;
+  var pmouseX, pmouseY;
+  var mouseX, mouseY;
+
+  document.addEventListener("mousedown", function (e) {
+    down = true;
+    mouseX = e.pageX;
+    mouseY = e.pageY;
+
+    ctx.strokeStyle = randomColor();
+
+    pmouseX = mouseX;
+    pmouseY = mouseY;
+  });
+
+  document.addEventListener("mousemove", function (e) {
+    mouseX = e.pageX;
+    mouseY = e.pageY;
+    if (down) {
+      ctx.line(pmouseX, pmouseY, mouseX, mouseY);
+    }
+    pmouseX = mouseX;
+    pmouseY = mouseY;
+  });
+
+  document.addEventListener("mouseup", function (e) {
+    down = false;
+    mouseX = e.pageX;
+    mouseY = e.pageY;
+
+    pmouseX = mouseX;
+    pmouseY = mouseY;
+  });
+
+  var poster = new Poster(window.parent);
+  poster.listen("mouse", function (e) {
+    $(document).simulate(e.type, {
+      clientX: e.x,
+      clientY: e.y
+    });
+  });
+
+</script>

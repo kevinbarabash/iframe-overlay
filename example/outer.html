@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>iframe-overlay example</title>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../src/poster.js"></script>
+  <script src="../src/iframe-overlay.js"></script>
+  <style>
+
+    iframe {
+      border: solid 1px slategray;
+    }
+
+  </style>
+</head>
+<body>
+
+<iframe id="iframe" width="400" height="400" src="inner.html"></iframe><br>
+<input type="checkbox" id="allowInput" checked>Allow Input</input>
+
+</body>
+</html>
+<script>
+
+  var iframe = document.getElementById("iframe");
+  var overlay = createIframeOverlay(iframe);
+
+  $("#allowInput").click(function () {
+    overlay.paused = !this.checked;
+  });
+
+</script>

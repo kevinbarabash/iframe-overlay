@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>iframe-overlay TEST RUNNER</title>
+  <link rel="stylesheet" href="../bower_components/mocha/mocha.css"/>
+</head>
+<body>
+
+<div id="mocha"></div>
+<script src="../bower_components/jquery/dist/jquery.js"></script>
+<script src="../bower_components/jquery-simulate/jquery.simulate.js"></script>
+<script src="../src/poster.js"></script>
+<script src="../src/iframe-overlay.js"></script>
+<script src="../bower_components/mocha/mocha.js"></script>
+<script src="../bower_components/expect/index.js"></script>
+<script src="sinon.js"></script>
+<script>mocha.setup('bdd')</script>
+
+</body>
+</html>
+<script src="test-spec.js"></script>
+<script>
+  window.onload = function () {
+    mocha.run();
+  };
+</script>
