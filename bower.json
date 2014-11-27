@@ -13,7 +13,8 @@
     "bower_components",
     "test",
     "tests",
-    "lib"
+    "lib",
+    "example"
   ],
   "dependencies": {
     "jquery": "~2.1.1",
