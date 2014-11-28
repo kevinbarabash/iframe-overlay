@@ -26,10 +26,11 @@ function createIframeOverlay(iframe) {
     overlay.addEventListener("mousedown", function (e) {
         state.down = true;
         if (!state.paused) {
+            var bounds = wrapper.getBoundingClientRect();
             poster.post("mouse", {
                 type: "mousedown",
-                x: e.pageX - wrapper.offsetLeft,
-                y: e.pageY - wrapper.offsetTop
+                x: e.pageX - bounds.left,
+                y: e.pageY - bounds.top
             });
             e.preventDefault();
         }
@@ -37,10 +38,11 @@ function createIframeOverlay(iframe) {
     overlay.addEventListener("mousemove", function (e) {
         if (!state.down) {
             if (!state.paused) {
+                var bounds = wrapper.getBoundingClientRect();
                 poster.post("mouse", {
                     type: "mousemove",
-                    x: e.pageX - wrapper.offsetLeft,
-                    y: e.pageY - wrapper.offsetTop
+                    x: e.pageX - bounds.left,
+                    y: e.pageY - bounds.top
                 });
             }
         }
@@ -48,10 +50,11 @@ function createIframeOverlay(iframe) {
     window.addEventListener("mousemove", function (e) {
         if (state.down) {
             if (!state.paused) {
+                var bounds = wrapper.getBoundingClientRect();
                 poster.post("mouse", {
                     type: "mousemove",
-                    x: e.pageX - wrapper.offsetLeft,
-                    y: e.pageY - wrapper.offsetTop
+                    x: e.pageX - bounds.left,
+                    y: e.pageY - bounds.top
                 });
             }
         }
@@ -59,10 +62,11 @@ function createIframeOverlay(iframe) {
     window.addEventListener("mouseup", function (e) {
         if (state.down) {
             if (!state.paused) {
+                var bounds = wrapper.getBoundingClientRect();
                 poster.post("mouse", {
                     type: "mouseup",
-                    x: e.pageX - wrapper.offsetLeft,
-                    y: e.pageY - wrapper.offsetTop
+                    x: e.pageX - bounds.left,
+                    y: e.pageY - bounds.top
                 });
             }
             state.down = false;
