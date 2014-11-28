@@ -1,6 +1,6 @@
 {
   "name": "iframe-overlay",
-  "main": "iframe-overlay.js",
+  "main": "dist/iframe-overlay.js",
   "version": "0.0.2",
   "homepage": "https://github.com/kevinb7/iframe-overlay",
   "authors": [
