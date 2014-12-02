@@ -11,8 +11,7 @@
     }
 
   </style>
-  <script src="../node_modules/jquery/dist/jquery.min.js"></script>
-  <script src="../node_modules/jquery-simulate/jquery.simulate.js"></script>
+  <script src="../node_modules/eventsim/dist/eventsim.js"></script>
   <script src="../node_modules/poster/dist/poster.js"></script>
 </head>
 <body><canvas id="canvas"></canvas></body>
@@ -84,7 +83,7 @@
 
   var poster = new Poster(window.parent);
   poster.listen("mouse", function (e) {
-    $(document).simulate(e.type, {
+    EventSim.simulate(document, e.type, {
       clientX: e.x,
       clientY: e.y
     });
