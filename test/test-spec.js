@@ -1,22 +1,77 @@
 /*global describe, beforeEach, afterEach, it */
 
 describe("Iframe Overlay", function () {
-    var iframe;
+    var iframe, listener, overlay;
 
-    beforeEach(function () {
-        iframe = $("<iframe></iframe>").attr({
-            width: 400,
-            height: 400,
-            src: "../example/inner.html"
-        }).appendTo(document.body).get(0);
+    beforeEach(function (done) {
+        iframe = document.createElement("iframe");
+        iframe.onload = function () {
+            done();
+        };
+        iframe.setAttribute("src", "iframe.html");
+
+        var container = document.querySelector("#container");
+        container.appendChild(iframe);
+
+        iframeOverlay.createOverlay(iframe);
+        overlay = document.querySelector(".overlay");
     });
 
     afterEach(function () {
-        $(iframe).remove();
+        $(".wrapper").remove();
+        $(document).off("message", listener);
     });
 
-    it("shouldn't fail", function () {
-        expect(true).to.be(true);
+    describe("Mouse Events", function () {
+        function testMouseEvent(name) {
+            it("should transmit " + name + " events", function (done) {
+                listener = function (e) {
+                    var data = e.originalEvent.data;
+
+                    expect(data.type).to.be(name);
+                    expect(data.x).to.be(200);
+                    expect(data.y).to.be(100);
+                    expect(data.shiftKey).to.be(true);
+                    expect(data.altKey).to.be(true);
+                    expect(data.metaKey).to.be(true);
+                    expect(data.ctrlKey).to.be(true);
+
+                    $(window).off("message", listener);
+                    done();
+                };
+                $(window).on("message", listener);
+
+                EventSim.simulate(overlay, name, { clientX: 200, clientY: 100, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
+            });
+        }
+
+        var mouseEvents = ["click", "dblclick", "mousedown", "mousemove", "mouseup", "mouseover", "mouseout"];
+        mouseEvents.forEach(testMouseEvent);
     });
 
+    describe("Keyboard Events", function () {
+        function testKeyboardEvent(name) {
+            it("should transmit " + name + " events", function (done) {
+                listener = function (e) {
+                    var data = e.originalEvent.data;
+
+                    expect(data.type).to.be(name);
+                    expect(data.keyCode).to.be(65);
+                    expect(data.shiftKey).to.be(true);
+                    expect(data.altKey).to.be(true);
+                    expect(data.metaKey).to.be(true);
+                    expect(data.ctrlKey).to.be(true);
+
+                    $(window).off("message", listener);
+                    done();
+                };
+                $(window).on("message", listener);
+
+                EventSim.simulate(overlay, name, { keyCode: 65, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
+            });
+        }
+
+        var mouseEvents = ["keydown", "keyup", "keypress"];
+        mouseEvents.forEach(testKeyboardEvent);
+    });
 });

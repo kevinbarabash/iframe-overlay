@@ -56,6 +56,11 @@ export function createOverlay(iframe) {
         });
     }
 
+    overlay.addEventListener("click", e => postMouseEvent(e), true);
+    overlay.addEventListener("dblclick", e => postMouseEvent(e), true);
+    overlay.addEventListener("mouseover", e => postMouseEvent(e), true);
+    overlay.addEventListener("mouseout", e => postMouseEvent(e), true);
+
     overlay.addEventListener("mousedown", e => {
         state.down = true;
         if (!state.paused) {
@@ -63,7 +68,7 @@ export function createOverlay(iframe) {
             overlay.focus();
             e.preventDefault();
         }
-    });
+    }, true);
 
     overlay.addEventListener("mousemove", e => {
         if (!state.down) {
@@ -71,7 +76,7 @@ export function createOverlay(iframe) {
                 postMouseEvent(e);
             }
         }
-    });
+    }, true);
 
     window.addEventListener("mousemove", e => {
         if (state.down) {
@@ -79,28 +84,34 @@ export function createOverlay(iframe) {
                 postMouseEvent(e);
             }
         }
-    });
+    }, true);
 
     window.addEventListener("mouseup", e => {
         if (state.down) {
-            if (!state.paused) {
-                postMouseEvent(e);
-            }
             state.down = false;
         }
-    });
+        if (!state.paused) {
+            postMouseEvent(e);
+        }
+    }, true);
 
     overlay.addEventListener("keydown", e => {
         if (!state.paused) {
             postKeyboardEvent(e);
         }
-    });
+    }, true);
+
+    overlay.addEventListener("keypress", e => {
+        if (!state.paused) {
+            postKeyboardEvent(e);
+        }
+    }, true);
 
     overlay.addEventListener("keyup", e => {
         if (!state.paused) {
             postKeyboardEvent(e);
         }
-    });
+    }, true);
 
     return state;
 }

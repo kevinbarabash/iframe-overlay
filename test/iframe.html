@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../node_modules/jquery/dist/jquery.js"></script>
+    <script src="../dist/iframe-overlay.js"></script>
+</head>
+<body>
+
+</body>
+</html>
+<script>
+
+    iframeOverlay.createRelay(document);
+
+    var parent = window.parent;
+
+    var postMouseEvent = function (e) {
+        var obj = { type: e.type, x: e.clientX, y: e.clientY, altKey: e.altKey, shiftKey: e.shiftKey, ctrlKey: e.ctrlKey, metaKey: e.metaKey };
+        parent.postMessage(obj, "*");
+    };
+
+    var postKeyboardEvent = function (e) {
+        var obj =  { type: e.type, keyCode: e.keyCode, altKey: e.altKey, shiftKey: e.shiftKey, ctrlKey: e.ctrlKey, metaKey: e.metaKey };
+        parent.postMessage(obj, "*");
+    };
+
+    var mouseEvents = ["click", "dblclick", "mousedown", "mousemove", "mouseup", "mouseover", "mouseout"];
+
+    mouseEvents.forEach(function (event) {
+        $(document).on(event, postMouseEvent);
+    });
+
+    var keyboardEvents = ["keydown", "keyup", "keypress"];
+
+    keyboardEvents.forEach(function (event) {
+        $(document).on(event, postKeyboardEvent);
+    });
+
+</script>

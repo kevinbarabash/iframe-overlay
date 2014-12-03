@@ -4,12 +4,23 @@
   <meta charset="UTF-8">
   <title>iframe-overlay TEST RUNNER</title>
   <link rel="stylesheet" href="../node_modules/mocha/mocha.css"/>
+  <style>
+
+    div#container {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+  </style>
 </head>
 <body>
 
+<div id="container"></div>
+
 <div id="mocha"></div>
 <script src="../node_modules/jquery/dist/jquery.js"></script>
-<script src="../node_modules/jquery-simulate/jquery.simulate.js"></script>
+<script src="../node_modules/eventsim/dist/eventsim.js"></script>
 <script src="../dist/iframe-overlay.js"></script>
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/expect.js/index.js"></script>
