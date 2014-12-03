@@ -11,6 +11,10 @@
       border: solid 1px slategray;
     }
 
+    .overlay:focus {
+      outline: none;
+    }
+
   </style>
 </head>
 <body>
@@ -23,7 +27,7 @@
 <script>
 
   var iframe = document.getElementById("iframe");
-  var overlay = createIframeOverlay(iframe);
+  var overlay = iframeOverlay.createOverlay(iframe);
 
   $("#allowInput").click(function () {
     overlay.paused = !this.checked;

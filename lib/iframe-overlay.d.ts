@@ -1,6 +1,5 @@
-/// <reference path="../typings/tsd.d.ts" />
-declare function createIframeOverlay(iframe: any): {
+export declare function createOverlay(iframe: any): {
     down: boolean;
     paused: boolean;
 };
-export = createIframeOverlay;
+export declare function createRelay(element: EventTarget): void;

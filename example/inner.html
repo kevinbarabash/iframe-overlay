@@ -11,8 +11,7 @@
     }
 
   </style>
-  <script src="../node_modules/eventsim/dist/eventsim.js"></script>
-  <script src="../node_modules/poster/dist/poster.js"></script>
+  <script src="../dist/iframe-overlay.js"></script>
 </head>
 <body><canvas id="canvas"></canvas></body>
 </html>
@@ -81,12 +80,16 @@
     pmouseY = mouseY;
   });
 
-  var poster = new Poster(window.parent);
-  poster.listen("mouse", function (e) {
-    EventSim.simulate(document, e.type, {
-      clientX: e.x,
-      clientY: e.y
-    });
+  // retrigger incoming events on the document
+  iframeOverlay.createRelay(document);
+
+  // TODO: keyboard input is a work-in-progress
+  document.addEventListener("keydown", function (e) {
+    console.log("keydown: %o", e);
+  });
+
+  document.addEventListener("keyup", function (e) {
+    console.log("keyup: %o", e);
   });
 
 </script>

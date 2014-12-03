@@ -6,29 +6,21 @@
  *   the code runing inside the iframe
  */
 
-/// <reference path="../typings/tsd.d.ts"/>
-
 import Poster = require("../node_modules/poster/lib/poster");
+import EventSim = require("../node_modules/eventsim/lib/eventsim");
 
-function createIframeOverlay(iframe) {
+export function createOverlay(iframe) {
 
-    var wrapper = $("<span></span>").css({
-        position: "relative",
-        padding: 0,
-        margin: 0,
-        display: "inline-block"
-    }).addClass("wrapper").get(0);
+    var wrapper = document.createElement("span");
+    wrapper.setAttribute("style", "position:relative;padding:0;margin:0;display:inline-block;");
+    wrapper.setAttribute("class", "wrapper");
 
-    var overlay = $("<span></span>").css({
-        position: "absolute",
-        left: 0,
-        top: 0,
-        width: "100%",
-        height: "100%"
-    }).addClass("overlay").get(0);
+    var overlay = document.createElement("span");
+    overlay.setAttribute("style", "position:absolute;left:0;top:0;width:100%;height:100%;");
+    overlay.setAttribute("class", "overlay");
+    overlay.setAttribute("tabindex", "0");    // allwos the span to have focus
 
     var parent = iframe.parentElement;
-
     parent.insertBefore(wrapper, iframe);
     wrapper.appendChild(iframe);
     wrapper.appendChild(overlay);
@@ -40,15 +32,35 @@ function createIframeOverlay(iframe) {
 
     var poster:Poster = new Poster(iframe.contentWindow);
 
+    function postMouseEvent(e: MouseEvent) {
+        var bounds = wrapper.getBoundingClientRect();
+        poster.post("mouse", {
+            type: e.type,
+            x: e.pageX - bounds.left,
+            y: e.pageY - bounds.top,
+            shiftKey: e.shiftKey,
+            altKey: e.altKey,
+            ctrlKey: e.ctrlKey,
+            metaKey: e.metaKey
+        });
+    }
+
+    function postKeyboardEvent(e: KeyboardEvent) {
+        poster.post("keyboard", {
+            type: e.type,
+            keyCode: e.keyCode,
+            shiftKey: e.shiftKey,
+            altKey: e.altKey,
+            ctrlKey: e.ctrlKey,
+            metaKey: e.metaKey
+        });
+    }
+
     overlay.addEventListener("mousedown", e => {
         state.down = true;
         if (!state.paused) {
-            var bounds = wrapper.getBoundingClientRect();
-            poster.post("mouse", {
-                type: "mousedown",
-                x: e.pageX - bounds.left,
-                y: e.pageY - bounds.top
-            });
+            postMouseEvent(e);
+            overlay.focus();
             e.preventDefault();
         }
     });
@@ -56,12 +68,7 @@ function createIframeOverlay(iframe) {
     overlay.addEventListener("mousemove", e => {
         if (!state.down) {
             if (!state.paused) {
-                var bounds = wrapper.getBoundingClientRect();
-                poster.post("mouse", {
-                    type: "mousemove",
-                    x: e.pageX - bounds.left,
-                    y: e.pageY - bounds.top
-                });
+                postMouseEvent(e);
             }
         }
     });
@@ -69,12 +76,7 @@ function createIframeOverlay(iframe) {
     window.addEventListener("mousemove", e => {
         if (state.down) {
             if (!state.paused) {
-                var bounds = wrapper.getBoundingClientRect();
-                poster.post("mouse", {
-                    type: "mousemove",
-                    x: e.pageX - bounds.left,
-                    y: e.pageY - bounds.top
-                });
+                postMouseEvent(e);
             }
         }
     });
@@ -82,18 +84,48 @@ function createIframeOverlay(iframe) {
     window.addEventListener("mouseup", e => {
         if (state.down) {
             if (!state.paused) {
-                var bounds = wrapper.getBoundingClientRect();
-                poster.post("mouse", {
-                    type: "mouseup",
-                    x: e.pageX - bounds.left,
-                    y: e.pageY - bounds.top
-                });
+                postMouseEvent(e);
             }
             state.down = false;
+        }
+    });
+
+    overlay.addEventListener("keydown", e => {
+        if (!state.paused) {
+            postKeyboardEvent(e);
+        }
+    });
+
+    overlay.addEventListener("keyup", e => {
+        if (!state.paused) {
+            postKeyboardEvent(e);
         }
     });
 
     return state;
 }
 
-export = createIframeOverlay;
+export function createRelay(element: EventTarget) {
+    var poster = new Poster(window.parent);
+
+    poster.listen("mouse", function (e) {
+        EventSim.simulate(element, e.type, {
+            clientX: e.x,
+            clientY: e.y,
+            altKey: e.altKey,
+            shiftKey: e.shiftKey,
+            metaKey: e.metaKey,
+            ctrlKey: e.ctrlKey
+        });
+    });
+
+    poster.listen("keyboard", function (e) {
+        EventSim.simulate(element, e.type, {
+            keyCode: e.keyCode,
+            altKey: e.altKey,
+            shiftKey: e.shiftKey,
+            metaKey: e.metaKey,
+            ctrlKey: e.ctrlKey
+        });
+    });
+}
