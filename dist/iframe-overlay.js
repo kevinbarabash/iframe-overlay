@@ -40,10 +40,10 @@ function createOverlay(iframe) {
             metaKey: e.metaKey
         });
     }
-    overlay.addEventListener("click", function (e) { return postMouseEvent(e); }, true);
-    overlay.addEventListener("dblclick", function (e) { return postMouseEvent(e); }, true);
-    overlay.addEventListener("mouseover", function (e) { return postMouseEvent(e); }, true);
-    overlay.addEventListener("mouseout", function (e) { return postMouseEvent(e); }, true);
+    overlay.addEventListener("click", function (e) { return postMouseEvent(e); });
+    overlay.addEventListener("dblclick", function (e) { return postMouseEvent(e); });
+    overlay.addEventListener("mouseover", function (e) { return postMouseEvent(e); });
+    overlay.addEventListener("mouseout", function (e) { return postMouseEvent(e); });
     overlay.addEventListener("mousedown", function (e) {
         state.down = true;
         if (!state.paused) {
@@ -51,44 +51,44 @@ function createOverlay(iframe) {
             overlay.focus();
             e.preventDefault();
         }
-    }, true);
+    });
     overlay.addEventListener("mousemove", function (e) {
         if (!state.down) {
             if (!state.paused) {
                 postMouseEvent(e);
             }
         }
-    }, true);
+    });
     window.addEventListener("mousemove", function (e) {
         if (state.down) {
             if (!state.paused) {
                 postMouseEvent(e);
             }
         }
-    }, true);
+    });
     window.addEventListener("mouseup", function (e) {
         if (state.down) {
             state.down = false;
+            if (!state.paused) {
+                postMouseEvent(e);
+            }
         }
-        if (!state.paused) {
-            postMouseEvent(e);
-        }
-    }, true);
+    });
     overlay.addEventListener("keydown", function (e) {
         if (!state.paused) {
             postKeyboardEvent(e);
         }
-    }, true);
+    });
     overlay.addEventListener("keypress", function (e) {
         if (!state.paused) {
             postKeyboardEvent(e);
         }
-    }, true);
+    });
     overlay.addEventListener("keyup", function (e) {
         if (!state.paused) {
             postKeyboardEvent(e);
         }
-    }, true);
+    });
     return state;
 }
 exports.createOverlay = createOverlay;

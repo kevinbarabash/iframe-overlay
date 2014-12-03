@@ -45,8 +45,31 @@ describe("Iframe Overlay", function () {
             });
         }
 
-        var mouseEvents = ["click", "dblclick", "mousedown", "mousemove", "mouseup", "mouseover", "mouseout"];
+        var mouseEvents = ["click", "dblclick", "mousedown", "mousemove", "mouseover", "mouseout"];
         mouseEvents.forEach(testMouseEvent);
+
+        it("should transmit mouseup events", function (done) {
+            listener = function (e) {
+                var data = e.originalEvent.data;
+
+                if (data.type === "mouseup") {
+                    expect(data.type).to.be("mouseup");
+                    expect(data.x).to.be(200);
+                    expect(data.y).to.be(100);
+                    expect(data.shiftKey).to.be(true);
+                    expect(data.altKey).to.be(true);
+                    expect(data.metaKey).to.be(true);
+                    expect(data.ctrlKey).to.be(true);
+
+                    $(window).off("message", listener);
+                    done();
+                }
+            };
+            $(window).on("message", listener);
+
+            EventSim.simulate(overlay, "mousedown", { clientX: 200, clientY: 100, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
+            EventSim.simulate(window, "mouseup", { clientX: 200, clientY: 100, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
+        });
     });
 
     describe("Keyboard Events", function () {
