@@ -188,7 +188,6 @@ describe("Iframe Overlay", function () {
             var eventCount = 0;
             listener = function (e) {
                 var data = e.originalEvent.data;
-                console.log(data.keyCode);
                 overlay.pause();
                 expect(data.keyCode).to.be(keyCodes[eventCount++]);
             };

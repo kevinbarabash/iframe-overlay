@@ -110,7 +110,6 @@ function createOverlay(iframe) {
                 if (queue.last && queue.last.value) {
                     var next = queue.last.value;
                     var delay = next["timestamp"] - e["timestamp"];
-                    console.log(delay);
                     setTimeout(pop, delay);
                 }
             }

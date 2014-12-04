@@ -132,7 +132,6 @@ export function createOverlay(iframe) {
                 if (queue.last && queue.last.value) {
                     var next = queue.last.value;  // TODO: change last to lastNode
                     var delay = next["timestamp"] - e["timestamp"]; // Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=238041
-                    console.log(delay);
                     setTimeout(pop, delay);
                 }
             }
