@@ -1,7 +1,7 @@
 /*global describe, beforeEach, afterEach, it */
 
 describe("Iframe Overlay", function () {
-    var iframe, listener, overlay;
+    var iframe, listener, overlay, overlayElement;
 
     beforeEach(function (done) {
         iframe = document.createElement("iframe");
@@ -13,8 +13,8 @@ describe("Iframe Overlay", function () {
         var container = document.querySelector("#container");
         container.appendChild(iframe);
 
-        iframeOverlay.createOverlay(iframe);
-        overlay = document.querySelector(".overlay");
+        overlay = iframeOverlay.createOverlay(iframe);
+        overlayElement = document.querySelector(".overlay");
     });
 
     afterEach(function () {
@@ -41,7 +41,7 @@ describe("Iframe Overlay", function () {
                 };
                 $(window).on("message", listener);
 
-                EventSim.simulate(overlay, name, { clientX: 200, clientY: 100, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
+                EventSim.simulate(overlayElement, name, { clientX: 200, clientY: 100, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
             });
         }
 
@@ -67,7 +67,7 @@ describe("Iframe Overlay", function () {
             };
             $(window).on("message", listener);
 
-            EventSim.simulate(overlay, "mousedown", { clientX: 200, clientY: 100, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
+            EventSim.simulate(overlayElement, "mousedown", { clientX: 200, clientY: 100, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
             EventSim.simulate(window, "mouseup", { clientX: 200, clientY: 100, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
         });
     });
@@ -90,11 +90,97 @@ describe("Iframe Overlay", function () {
                 };
                 $(window).on("message", listener);
 
-                EventSim.simulate(overlay, name, { keyCode: 65, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
+                EventSim.simulate(overlayElement, name, { keyCode: 65, shiftKey: true, altKey: true, metaKey: true, ctrlKey: true });
             });
         }
 
         var mouseEvents = ["keydown", "keyup", "keypress"];
         mouseEvents.forEach(testKeyboardEvent);
+    });
+
+    describe("Sequences of events", function () {
+        it("should send all events if it isn't paused", function (done) {
+            var eventCount = 0;
+            listener = function (e) {
+                eventCount++;
+            };
+
+            setTimeout(function () {
+                expect(eventCount).to.be(3);
+                $(window).off("message", listener); // cleanup
+                done();
+            }, 200);
+
+            $(window).on("message", listener);
+
+            EventSim.simulate(overlayElement, "mousedown", { clientX: 200, clientY: 100 });
+            // pause before sending the next event otherwise there's not enough time for the listener to set the paused flag
+            // in practice this is perfectly acceptable because even if a user is spamming us by mashing a physical keyboard
+            // there will still be slight delays in between
+            setTimeout(function () {
+                EventSim.simulate(window, "mousemove", { clientX: 200, clientY: 100 });
+                EventSim.simulate(window, "mouseup", { clientX: 200, clientY: 100 });
+            }, 50);
+        });
+
+        it("should not send events after being paused", function (done) {
+            var eventCount = 0;
+            listener = function (e) {
+                var data = e.originalEvent.data;
+                if (data.type === "mousedown") {
+                    overlay.pause();
+                }
+                eventCount++;
+            };
+
+            setTimeout(function () {
+                expect(eventCount).to.be(1);
+                $(window).off("message", listener); // cleanup
+                done();
+            }, 200);
+
+            $(window).on("message", listener);
+
+            EventSim.simulate(overlayElement, "mousedown", { clientX: 200, clientY: 100 });
+            // pause before sending the next event otherwise there's not enough time for the listener to set the paused flag
+            // in practice this is perfectly acceptable because even if a user is spamming us by mashing a physical keyboard
+            // there will still be slight delays in between
+            setTimeout(function () {
+                EventSim.simulate(window, "mousemove", { clientX: 200, clientY: 100 });
+                EventSim.simulate(window, "mouseup", { clientX: 200, clientY: 100 });
+            }, 50);
+        });
+
+        it("should queue events and trigger then after resuming a paused instance", function (done) {
+            var eventCount = 0;
+            listener = function (e) {
+                var data = e.originalEvent.data;
+                if (data.type === "mousedown") {
+                    overlay.pause();
+                }
+                eventCount++;
+            };
+
+            setTimeout(function () {
+                expect(eventCount).to.be(3);
+                $(window).off("message", listener); // cleanup
+                done();
+            }, 200);
+
+            $(window).on("message", listener);
+
+            EventSim.simulate(overlayElement, "mousedown", { clientX: 200, clientY: 100 });
+            // pause before sending the next event otherwise there's not enough time for the listener to set the paused flag
+            // in practice this is perfectly acceptable because even if a user is spamming us by mashing a physical keyboard
+            // there will still be slight delays in between
+            setTimeout(function () {
+                EventSim.simulate(window, "mousemove", { clientX: 200, clientY: 100 });
+                EventSim.simulate(window, "mouseup", { clientX: 200, clientY: 100 });
+
+                setTimeout(function () {
+                    overlay.resume();
+                }, 50);
+            }, 50);
+        });
     });
 });

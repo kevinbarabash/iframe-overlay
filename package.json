@@ -21,11 +21,12 @@
   },
   "homepage": "https://github.com/kevinb7/iframe-overlay",
   "dependencies": {
-    "poster": "git://github.com/kevinb7/poster.git"
+    "poster": "git://github.com/kevinb7/poster.git",
+    "eventsim": "git://github.com/kevinb7/eventsim.git",
+    "basic-ds": "git://github.com/kevinb7/basic-ds"
   },
   "devDependencies": {
     "browserify": "^6.3.3",
-    "eventsim": "git://github.com/kevinb7/eventsim.git",
     "expect.js": "^0.3.1",
     "jquery": "^2.1.1",
     "mocha": "^2.0.1",

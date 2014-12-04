@@ -8,6 +8,7 @@
 
 import Poster = require("../node_modules/poster/lib/poster");
 import EventSim = require("../node_modules/eventsim/lib/eventsim");
+import basic = require("../node_modules/basic-ds/lib/basic");
 
 export function createOverlay(iframe) {
 
@@ -25,35 +26,42 @@ export function createOverlay(iframe) {
     wrapper.appendChild(iframe);
     wrapper.appendChild(overlay);
 
-    var state = {
-        down: false,
-        paused: false
-    };
+    var down = false;
+    var paused = false;
+    var queue = new basic.LinkedList<Event>();
 
     var poster:Poster = new Poster(iframe.contentWindow);
 
     function postMouseEvent(e: MouseEvent) {
-        var bounds = wrapper.getBoundingClientRect();
-        poster.post("mouse", {
-            type: e.type,
-            x: e.pageX - bounds.left,
-            y: e.pageY - bounds.top,
-            shiftKey: e.shiftKey,
-            altKey: e.altKey,
-            ctrlKey: e.ctrlKey,
-            metaKey: e.metaKey
-        });
+        if (paused) {
+            queue.push_back(e);
+        } else {
+            var bounds = wrapper.getBoundingClientRect();
+            poster.post("mouse", {
+                type: e.type,
+                x: e.pageX - bounds.left,
+                y: e.pageY - bounds.top,
+                shiftKey: e.shiftKey,
+                altKey: e.altKey,
+                ctrlKey: e.ctrlKey,
+                metaKey: e.metaKey
+            });
+        }
     }
 
     function postKeyboardEvent(e: KeyboardEvent) {
-        poster.post("keyboard", {
-            type: e.type,
-            keyCode: e.keyCode,
-            shiftKey: e.shiftKey,
-            altKey: e.altKey,
-            ctrlKey: e.ctrlKey,
-            metaKey: e.metaKey
-        });
+        if (paused) {
+            queue.push_back(e);
+        } else {
+            poster.post("keyboard", {
+                type: e.type,
+                keyCode: e.keyCode,
+                shiftKey: e.shiftKey,
+                altKey: e.altKey,
+                ctrlKey: e.ctrlKey,
+                metaKey: e.metaKey
+            });
+        }
     }
 
     overlay.addEventListener("click", e => postMouseEvent(e));
@@ -62,58 +70,51 @@ export function createOverlay(iframe) {
     overlay.addEventListener("mouseout", e => postMouseEvent(e));
 
     overlay.addEventListener("mousedown", e => {
-        state.down = true;
-        if (!state.paused) {
-            postMouseEvent(e);
-            overlay.focus();
-            e.preventDefault();
-        }
+        down = true;
+        postMouseEvent(e);
     });
 
     overlay.addEventListener("mousemove", e => {
-        if (!state.down) {
-            if (!state.paused) {
-                postMouseEvent(e);
-            }
+        if (!down) {
+            postMouseEvent(e);
         }
     });
 
     window.addEventListener("mousemove", e => {
-        if (state.down) {
-            if (!state.paused) {
-                postMouseEvent(e);
-            }
+        if (down) {
+            postMouseEvent(e);
         }
     });
 
     window.addEventListener("mouseup", e => {
-        if (state.down) {
-            state.down = false;
-            if (!state.paused) {
-                postMouseEvent(e);
-            }
+        if (down) {
+            down = false;
+            postMouseEvent(e);
         }
     });
 
-    overlay.addEventListener("keydown", e => {
-        if (!state.paused) {
-            postKeyboardEvent(e);
-        }
-    });
+    overlay.addEventListener("keydown", e => postKeyboardEvent(e));
+    overlay.addEventListener("keypress", e => postKeyboardEvent(e));
+    overlay.addEventListener("keyup", e => postKeyboardEvent(e));
 
-    overlay.addEventListener("keypress", e => {
-        if (!state.paused) {
-            postKeyboardEvent(e);
+    return {
+        pause() {
+            paused = true;
+        },
+        resume() {
+            paused = false;
+            var events = queue.toArray();
+            queue.clear();  // so we don't get duplicates of we get paused again
+            // TODO: add a .size/.empty getters to LinkedList
+            events.forEach(e => {
+                if (e instanceof MouseEvent) {
+                    postMouseEvent(<MouseEvent> e);
+                } else if (e instanceof KeyboardEvent) {
+                    postKeyboardEvent(<KeyboardEvent> e);
+                }
+            });
         }
-    });
-
-    overlay.addEventListener("keyup", e => {
-        if (!state.paused) {
-            postKeyboardEvent(e);
-        }
-    });
-
-    return state;
+    };
 }
 
 export function createRelay(element: EventTarget) {

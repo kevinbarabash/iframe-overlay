@@ -1,5 +1,5 @@
 export declare function createOverlay(iframe: any): {
-    down: boolean;
-    paused: boolean;
+    pause: () => void;
+    resume: () => void;
 };
 export declare function createRelay(element: EventTarget): void;
