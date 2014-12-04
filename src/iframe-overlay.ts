@@ -34,7 +34,8 @@ export function createOverlay(iframe) {
 
     function postMouseEvent(e: MouseEvent) {
         if (paused) {
-            queue.push_back(e);
+            e["timestamp"] = Date.now();    // Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=238041
+            queue.push_front(e);
         } else {
             var bounds = wrapper.getBoundingClientRect();
             poster.post("mouse", {
@@ -51,7 +52,8 @@ export function createOverlay(iframe) {
 
     function postKeyboardEvent(e: KeyboardEvent) {
         if (paused) {
-            queue.push_back(e);
+            e["timestamp"] = Date.now();    // Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=238041
+            queue.push_front(e);
         } else {
             poster.post("keyboard", {
                 type: e.type,
@@ -97,22 +99,44 @@ export function createOverlay(iframe) {
     overlay.addEventListener("keypress", e => postKeyboardEvent(e));
     overlay.addEventListener("keyup", e => postKeyboardEvent(e));
 
+    var keyEventRegex = /key(up|down|press)/;
+    var mouseEventRegex = /click|dblclick|mouse(up|down|move|over|out)/;
+
     return {
         pause() {
             paused = true;
         },
         resume() {
             paused = false;
-            var events = queue.toArray();
-            queue.clear();  // so we don't get duplicates of we get paused again
-            // TODO: add a .size/.empty getters to LinkedList
-            events.forEach(e => {
+
+            function pop() {
+                if (paused) {
+                    return; // if something has paused use since we posted the last event return
+                }
+
+                var e = queue.pop_back();
+                if (!e) {
+                    return;
+                }
+
                 if (e instanceof MouseEvent) {
                     postMouseEvent(<MouseEvent> e);
                 } else if (e instanceof KeyboardEvent) {
                     postKeyboardEvent(<KeyboardEvent> e);
+                } else if (mouseEventRegex.test(e.type)) {
+                    postMouseEvent(<MouseEvent> e);
+                } else if (keyEventRegex.test(e.type)) {
+                    postKeyboardEvent(<KeyboardEvent> e);
                 }
-            });
+
+                if (queue.last && queue.last.value) {
+                    var next = queue.last.value;  // TODO: change last to lastNode
+                    var delay = next["timestamp"] - e["timestamp"]; // Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=238041
+                    console.log(delay);
+                    setTimeout(pop, delay);
+                }
+            }
+            pop();
         }
     };
 }

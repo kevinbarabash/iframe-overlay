@@ -179,8 +179,44 @@ describe("Iframe Overlay", function () {
 
                 setTimeout(function () {
                     overlay.resume();
-                }, 50);
-            }, 50);
+                }, 30);
+            }, 30);
+        });
+
+        it("should trigger keyboard events with the right keyCode", function (done) {
+            var keyCodes = [65, 66, 67];
+            var eventCount = 0;
+            listener = function (e) {
+                var data = e.originalEvent.data;
+                console.log(data.keyCode);
+                overlay.pause();
+                expect(data.keyCode).to.be(keyCodes[eventCount++]);
+            };
+
+            setTimeout(function () {
+                expect(eventCount).to.be(3);
+                $(window).off("message", listener); // cleanup
+                done();
+            }, 300);
+
+            $(window).on("message", listener);
+
+            EventSim.simulate(overlayElement, "keydown", { keyCode: 65 });
+            // pause before sending the next event otherwise there's not enough time for the listener to set the paused flag
+            // in practice this is perfectly acceptable because even if a user is spamming us by mashing a physical keyboard
+            // there will still be slight delays in between
+            setTimeout(function () {
+                EventSim.simulate(overlayElement, "keydown", { keyCode: 66 });
+                setTimeout(function () {
+                    EventSim.simulate(overlayElement, "keydown", { keyCode: 67 });
+                    setTimeout(function () {
+                        overlay.resume();
+                        setTimeout(function () {
+                            overlay.resume();
+                        }, 30);
+                    }, 30);
+                }, 30);
+            }, 30);
         });
     });
 });
