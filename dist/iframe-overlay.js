@@ -86,6 +86,9 @@ function createOverlay(iframe) {
             paused = true;
         },
         resume: function () {
+            if (!paused) {
+                return;
+            }
             paused = false;
             function pop() {
                 if (paused) {

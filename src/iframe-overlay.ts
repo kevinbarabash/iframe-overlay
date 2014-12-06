@@ -107,6 +107,9 @@ export function createOverlay(iframe) {
             paused = true;
         },
         resume() {
+            if (!paused) {  // guard against multiple calls to resume()
+                return;
+            }
             paused = false;
 
             function pop() {
