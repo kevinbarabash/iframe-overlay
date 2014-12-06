@@ -184,36 +184,97 @@ describe("Iframe Overlay", function () {
         });
 
         it("should trigger keyboard events with the right keyCode", function (done) {
-            var keyCodes = [65, 66, 67];
+            var keyCodes = [65, 97, 65, 66, 98, 66, 67, 99, 67];
             var eventCount = 0;
             listener = function (e) {
                 var data = e.originalEvent.data;
-                overlay.pause();
-                expect(data.keyCode).to.be(keyCodes[eventCount++]);
+                if (data.type === "keydown") {
+                    overlay.pause();
+                }
+                expect(data.keyCode).to.be(keyCodes[eventCount]);
+                eventCount++;
             };
 
             setTimeout(function () {
-                expect(eventCount).to.be(3);
+                expect(eventCount).to.be(9);
                 $(window).off("message", listener); // cleanup
                 done();
-            }, 300);
+            }, 500);
 
             $(window).on("message", listener);
 
             EventSim.simulate(overlayElement, "keydown", { keyCode: 65 });
+            EventSim.simulate(overlayElement, "keypress", { keyCode: 97 });
+            EventSim.simulate(overlayElement, "keyup", { keyCode: 65 });
+
             // pause before sending the next event otherwise there's not enough time for the listener to set the paused flag
             // in practice this is perfectly acceptable because even if a user is spamming us by mashing a physical keyboard
             // there will still be slight delays in between
             setTimeout(function () {
                 EventSim.simulate(overlayElement, "keydown", { keyCode: 66 });
+                EventSim.simulate(overlayElement, "keypress", { keyCode: 98 });
+                EventSim.simulate(overlayElement, "keyup", { keyCode: 66 });
                 setTimeout(function () {
                     EventSim.simulate(overlayElement, "keydown", { keyCode: 67 });
+                    EventSim.simulate(overlayElement, "keypress", { keyCode: 99 });
+                    EventSim.simulate(overlayElement, "keyup", { keyCode: 67 });
                     setTimeout(function () {
                         overlay.resume();
                         setTimeout(function () {
                             overlay.resume();
-                        }, 30);
-                    }, 30);
+                            setTimeout(function () {
+                                overlay.resume();
+                            }, 50);
+                        }, 50);
+                    }, 50);
+                }, 30);
+            }, 30);
+        });
+
+        it.only("should trigger keyboard events with the right keyCode (version 2)", function (done) {
+            var keyCodes = [65, 97, 65, 66, 98, 66, 67, 99, 67];
+            var eventCount = 0;
+            listener = function (e) {
+                var data = e.originalEvent.data;
+                if (data.type === "keydown") {
+                    overlay.pause();
+                }
+                expect(data.keyCode).to.be(keyCodes[eventCount]);
+                eventCount++;
+            };
+
+            setTimeout(function () {
+                expect(eventCount).to.be(9);
+                $(window).off("message", listener); // cleanup
+                done();
+            }, 500);
+
+            $(window).on("message", listener);
+
+            EventSim.simulate(overlayElement, "keydown", { keyCode: 65 });
+            EventSim.simulate(overlayElement, "keypress", { keyCode: 97 });
+            EventSim.simulate(overlayElement, "keyup", { keyCode: 65 });
+
+            // pause before sending the next event otherwise there's not enough time for the listener to set the paused flag
+            // in practice this is perfectly acceptable because even if a user is spamming us by mashing a physical keyboard
+            // there will still be slight delays in between
+            setTimeout(function () {
+                EventSim.simulate(overlayElement, "keydown", { keyCode: 66 });
+                EventSim.simulate(overlayElement, "keypress", { keyCode: 98 });
+                EventSim.simulate(overlayElement, "keyup", { keyCode: 66 });
+                setTimeout(function () {
+                    EventSim.simulate(overlayElement, "keydown", { keyCode: 67 });
+                    EventSim.simulate(overlayElement, "keypress", { keyCode: 99 });
+                    EventSim.simulate(overlayElement, "keyup", { keyCode: 67 });
+                    setTimeout(function () {
+                        overlay.resume();
+                        setTimeout(function () {
+                            overlay.resume();
+                            setTimeout(function () {
+                                overlay.resume();
+                            }, 100);
+                        }, 100);
+                    }, 100);
                 }, 30);
             }, 30);
         });
