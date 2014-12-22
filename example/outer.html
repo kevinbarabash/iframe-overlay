@@ -30,7 +30,11 @@
   var overlay = iframeOverlay.createOverlay(iframe);
 
   $("#allowInput").click(function () {
-    overlay.paused = !this.checked;
+    if (!this.checked) {
+      overlay.pause();
+    } else {
+      overlay.resume();
+    }
   });
 
 </script>

@@ -84,6 +84,7 @@ export function createOverlay(iframe) {
 
     window.addEventListener("mousemove", e => {
         if (down) {
+            e.preventDefault();
             postMouseEvent(e);
         }
     });

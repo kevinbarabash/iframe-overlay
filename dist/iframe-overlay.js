@@ -67,6 +67,7 @@ function createOverlay(iframe) {
     });
     window.addEventListener("mousemove", function (e) {
         if (down) {
+            e.preventDefault();
             postMouseEvent(e);
         }
     });
