@@ -1,8 +1,8 @@
 {
   "name": "iframe-overlay",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "iframe-overlay",
-  "main": "./lib/iframe-overlay.js",
+  "main": "./src/iframe-overlay.js",
   "directories": {
     "example": "example",
     "test": "test"
@@ -26,12 +26,13 @@
     "basic-ds": "git://github.com/kevinb7/basic-ds"
   },
   "devDependencies": {
+    "6to5ify": "^3.1.0",
+    "browserify": "^8.0.3",
     "expect.js": "^0.3.1",
     "jquery": "^2.1.1",
     "mocha": "^2.0.1",
     "mocha-phantomjs": "^3.5.1",
     "phantomjs": "^1.9.12",
-    "testee": "^0.1.7",
-    "tsbuild": "git://github.com/kevinb7/tsbuild.git"
+    "testee": "^0.1.7"
   }
 }

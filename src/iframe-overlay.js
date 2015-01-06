@@ -6,11 +6,11 @@
  *   the code runing inside the iframe
  */
 
-import Poster = require("../node_modules/poster/lib/poster");
-import EventSim = require("../node_modules/eventsim/lib/eventsim");
-import basic = require("../node_modules/basic-ds/lib/basic");
+var Poster = require("poster");
+var EventSim = require("eventsim");
+var LinkedList = require("basic-ds").LinkedList;
 
-export function createOverlay(iframe) {
+function createOverlay(iframe) {
 
     var wrapper = document.createElement("span");
     wrapper.setAttribute("style", "position:relative;padding:0;margin:0;display:inline-block;");
@@ -28,11 +28,11 @@ export function createOverlay(iframe) {
 
     var down = false;
     var paused = false;
-    var queue = new basic.LinkedList<Event>();
+    var queue = new LinkedList();
 
-    var poster:Poster = new Poster(iframe.contentWindow);
+    var poster = new Poster(iframe.contentWindow);
 
-    function postMouseEvent(e: MouseEvent) {
+    function postMouseEvent(e) {
         if (paused) {
             e["timestamp"] = Date.now();    // Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=238041
             queue.push_front(e);
@@ -50,7 +50,7 @@ export function createOverlay(iframe) {
         }
     }
 
-    function postKeyboardEvent(e: KeyboardEvent) {
+    function postKeyboardEvent(e) {
         if (paused) {
             e["timestamp"] = Date.now();    // Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=238041
             queue.push_front(e);
@@ -124,13 +124,13 @@ export function createOverlay(iframe) {
                 }
 
                 if (e instanceof MouseEvent) {
-                    postMouseEvent(<MouseEvent> e);
+                    postMouseEvent(e);
                 } else if (e instanceof KeyboardEvent) {
-                    postKeyboardEvent(<KeyboardEvent> e);
+                    postKeyboardEvent(e);
                 } else if (mouseEventRegex.test(e.type)) {
-                    postMouseEvent(<MouseEvent> e);
+                    postMouseEvent(e);
                 } else if (keyEventRegex.test(e.type)) {
-                    postKeyboardEvent(<KeyboardEvent> e);
+                    postKeyboardEvent(e);
                 }
 
                 if (queue.last && queue.last.value) {
@@ -144,7 +144,7 @@ export function createOverlay(iframe) {
     };
 }
 
-export function createRelay(element: EventTarget) {
+function createRelay(element) {
     var poster = new Poster(window.parent);
 
     poster.listen("mouse", function (e) {
@@ -168,3 +168,7 @@ export function createRelay(element: EventTarget) {
         });
     });
 }
+
+
+exports.createOverlay = createOverlay;
+exports.createRelay = createRelay;
