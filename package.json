@@ -1,6 +1,6 @@
 {
   "name": "iframe-overlay",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "iframe-overlay",
   "main": "./src/iframe-overlay.js",
   "directories": {
@@ -29,10 +29,12 @@
     "6to5ify": "^3.1.0",
     "browserify": "^8.0.3",
     "expect.js": "^0.3.1",
+    "gulp-6to5": "^2.0.0",
     "jquery": "^2.1.1",
     "mocha": "^2.0.1",
     "mocha-phantomjs": "^3.5.1",
     "phantomjs": "^1.9.12",
-    "testee": "^0.1.7"
+    "testee": "^0.1.7",
+    "vinyl-source-stream": "^1.0.0"
   }
 }
