@@ -1,8 +1,8 @@
 {
   "name": "iframe-overlay",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "iframe-overlay",
-  "main": "./src/iframe-overlay.js",
+  "main": "./lib/iframe-overlay.js",
   "directories": {
     "example": "example",
     "test": "test"
